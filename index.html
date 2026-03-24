@@ -5,35 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #101014; color: white; font-family: sans-serif; padding: 15px; margin: 0; }
-        .header { display: flex; align-items: center; margin-bottom: 20px; }
-        .avatar { width: 50px; height: 50px; background: #1A1A20; border: 2px solid #FF4141; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; margin-right: 15px; }
-        .nickname { font-size: 18px; font-weight: bold; }
-        .org { background: #6C46BC; font-size: 10px; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; text-transform: uppercase; }
+        body { background: #101014; color: white; font-family: -apple-system, sans-serif; padding: 15px; margin: 0; padding-bottom: 40px; }
         
-        .section-title { color: #FF4141; font-size: 11px; text-transform: uppercase; margin: 25px 0 10px 5px; display: flex; align-items: center; letter-spacing: 1px; }
-        .section-title::before { content: '📌'; margin-right: 8px; font-size: 14px; }
+        .header { display: flex; align-items: center; margin-bottom: 25px; margin-top: 10px; }
+        
+        .avatar { 
+            width: 65px; height: 65px; background: #1A1A20; 
+            border: 2px solid #FF4141; border-radius: 18px; 
+            display: flex; justify-content: center; align-items: center; 
+            font-size: 26px; font-weight: bold; margin-right: 15px;
+            background-size: cover; background-position: center;
+        }
+        
+        .nickname { font-size: 20px; font-weight: bold; letter-spacing: 0.5px; }
+        .org { background: #6C46BC; font-size: 10px; padding: 3px 10px; border-radius: 6px; display: inline-block; margin-top: 5px; text-transform: uppercase; font-weight: bold; }
+        
+        .section-title { color: #FF4141; font-size: 11px; text-transform: uppercase; margin: 25px 0 12px 5px; display: flex; align-items: center; letter-spacing: 1.2px; font-weight: bold; }
+        .section-title::before { content: ''; width: 14px; height: 2px; background: #FF4141; margin-right: 10px; border-radius: 2px; }
 
-        .card { background: #1A1A20; border-radius: 20px; padding: 18px; margin-bottom: 15px; }
-        .row { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 14px; border-bottom: 1px solid #25252b; padding-bottom: 8px; }
+        .card { background: #1A1A20; border-radius: 22px; padding: 20px; margin-bottom: 15px; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid #25252b; padding-bottom: 10px; }
         .row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        
         .label { color: #88888E; }
-        .val { font-weight: 500; text-align: right; }
+        .val { font-weight: 500; text-align: right; word-break: break-all; margin-left: 15px; }
         .highlight { color: #FF4141; }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-        .grid-item { background: #1A1A20; border-radius: 20px; padding: 15px; text-align: center; }
-        .grid-val { font-size: 22px; font-weight: bold; color: #FF4141; margin-bottom: 4px; }
-        .grid-label { font-size: 9px; color: #88888E; text-transform: uppercase; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .grid-item { background: #1A1A20; border-radius: 18px; padding: 15px 5px; text-align: center; }
+        .grid-val { font-size: 20px; font-weight: bold; color: #FF4141; margin-bottom: 5px; }
+        .grid-label { font-size: 8px; color: #88888E; text-transform: uppercase; font-weight: bold; }
+
+        /* Кнопка закрытия для удобства */
+        .close-btn { margin-top: 30px; width: 100%; padding: 15px; border-radius: 15px; border: none; background: #1A1A20; color: #88888E; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="avatar" id="avatar">T</div>
+        <div class="avatar" id="user_avatar"></div>
         <div>
-            <div class="nickname" id="nick">Загрузка...</div>
+            <div class="nickname" id="nick">ЗАГРУЗКА...</div>
             <div class="org" id="org_val">SURGUT</div>
         </div>
+    </div>
+
+    <div class="section-title">Успеваемость</div>
+    <div class="grid">
+        <div class="grid-item"><div class="grid-val" id="balls">0</div><div class="grid-label">Баллы</div></div>
+        <div class="grid-item"><div class="grid-val" id="vigs">0</div><div class="grid-label">Выговоры</div></div>
+        <div class="grid-item"><div class="grid-val" id="preds">0</div><div class="grid-label">Пред-ия</div></div>
+        <div class="grid-item"><div class="grid-val" id="usts">0</div><div class="grid-label">Устники</div></div>
     </div>
 
     <div class="section-title">Основная информация</div>
@@ -42,41 +63,53 @@
         <div class="row"><div class="label">Добавил:</div><div class="val" id="added_by">---</div></div>
         <div class="row"><div class="label">Дата назначения:</div><div class="val" id="reg_date">---</div></div>
         <div class="row"><div class="label">Дней на должности:</div><div class="val" id="days_count">0</div></div>
-        <div class="row"><div class="label">Часовой пояс:</div><div class="val" id="tz">---</div></div>
     </div>
 
-    <div class="section-title">Успеваемость</div>
-    <div class="grid">
-        <div class="grid-item"><div class="grid-val" id="balls_val">0</div><div class="grid-label">Баллы</div></div>
-        <div class="grid-item"><div class="grid-val" id="vigs_val">0</div><div class="grid-label">Выговоры</div></div>
-        <div class="grid-item"><div class="grid-val" id="preds_val">0</div><div class="grid-label">Пред-ия</div></div>
+    <div class="section-title">Контакты</div>
+    <div class="card">
+        <div class="row"><div class="label">TG Username:</div><div class="val highlight" id="tg_user">@---</div></div>
+        <div class="row"><div class="label">TG ID:</div><div class="val" id="tg_id">---</div></div>
+        <div class="row"><div class="label">Discord ID:</div><div class="val" id="ds_id">---</div></div>
+        <div class="row"><div class="label">Почта:</div><div class="val" id="email">---</div></div>
     </div>
 
-    
+    <button class="close-btn" onclick="window.Telegram.WebApp.close()">ЗАКРЫТЬ ПАНЕЛЬ</button>
+
     <script>
-    const tg = window.Telegram.WebApp;
-    tg.expand();
-    tg.ready();
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачиваем на весь экран
+        tg.ready();
 
-    // Функция для получения данных из ссылки
-    const urlParams = new URLSearchParams(window.location.search);
+        // Парсим данные из URL
+        const params = new URLSearchParams(window.location.search);
 
-    // Заполняем данными с бота
-    const nick = urlParams.get('nick') || "Неизвестно";
-    document.getElementById('nick').innerText = nick;
-    document.getElementById('avatar').innerText = nick[0].toUpperCase();
-    
-    document.getElementById('org_val').innerText = urlParams.get('org') || "SURGUT";
-    document.getElementById('post').innerText = urlParams.get('post') || "---";
-    document.getElementById('added_by').innerText = urlParams.get('added') || "---";
-    document.getElementById('reg_date').innerText = urlParams.get('date') || "---";
-    document.getElementById('days_count').innerText = urlParams.get('days') || "0";
-    document.getElementById('tz').innerText = urlParams.get('tz') || "---";
-    
-    document.getElementById('balls_val').innerText = urlParams.get('balls') || "0";
-    document.getElementById('vigs_val').innerText = urlParams.get('vigs') || "0";
-    document.getElementById('preds_val').innerText = urlParams.get('preds') || "0";
+        // Установка аватара
+        const avatarBox = document.getElementById('user_avatar');
+        if (tg.initDataUnsafe.user && tg.initDataUnsafe.user.photo_url) {
+            avatarBox.style.backgroundImage = `url('${tg.initDataUnsafe.user.photo_url}')`;
+        } else {
+            avatarBox.innerText = (params.get('nick') || "T")[0].toUpperCase();
+        }
 
-    // Сообщаем ТГ, что всё готово
-    tg.ready();
-</script>
+        // Заполнение текстовых полей
+        document.getElementById('nick').innerText = (params.get('nick') || "Неизвестно").toUpperCase();
+        document.getElementById('org_val').innerText = params.get('org') || "SURGUT";
+        document.getElementById('post').innerText = params.get('post') || "---";
+        document.getElementById('added_by').innerText = params.get('added') || "---";
+        document.getElementById('reg_date').innerText = params.get('date') || "---";
+        document.getElementById('days_count').innerText = params.get('days') || "0";
+        
+        // Успеваемость
+        document.getElementById('balls').innerText = params.get('balls') || "0";
+        document.getElementById('vigs').innerText = params.get('vigs') || "0";
+        document.getElementById('preds').innerText = params.get('preds') || "0";
+        document.getElementById('usts').innerText = params.get('usts') || "0";
+
+        // Контакты
+        document.getElementById('tg_user').innerText = "@" + (params.get('tg_name') || "---");
+        document.getElementById('tg_id').innerText = params.get('tid') || "---";
+        document.getElementById('ds_id').innerText = params.get('ds') || "---";
+        document.getElementById('email').innerText = params.get('mail') || "---";
+    </script>
+</body>
+</html>
