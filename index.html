@@ -1,46 +1,42 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #101014; color: white; font-family: -apple-system, sans-serif; padding: 15px; margin: 0; padding-bottom: 40px; }
-        .header { display: flex; align-items: center; margin-bottom: 25px; margin-top: 10px; }
-        .avatar { 
-            width: 65px; height: 65px; background: #1A1A20; 
-            border: 2px solid #FF4141; border-radius: 18px; 
-            display: flex; justify-content: center; align-items: center; 
-            font-size: 26px; font-weight: bold; margin-right: 15px;
-            background-size: cover; background-position: center;
-        }
-        .nickname { font-size: 20px; font-weight: bold; }
-        .org { background: #6C46BC; font-size: 10px; padding: 3px 10px; border-radius: 6px; display: inline-block; margin-top: 5px; text-transform: uppercase; font-weight: bold; }
-        .section-title { color: #FF4141; font-size: 11px; text-transform: uppercase; margin: 25px 0 12px 5px; display: flex; align-items: center; font-weight: bold; }
-        .section-title::before { content: ''; width: 14px; height: 2px; background: #FF4141; margin-right: 10px; border-radius: 2px; }
-        .card { background: #1A1A20; border-radius: 22px; padding: 20px; margin-bottom: 15px; }
-        .row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px; border-bottom: 1px solid #25252b; padding-bottom: 10px; }
-        .row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        body { background: #101014; color: white; font-family: sans-serif; padding: 15px; margin: 0; }
+        .header { display: flex; align-items: center; margin-bottom: 20px; }
+        .avatar { width: 60px; height: 60px; background: #1A1A20; border: 2px solid #FF4141; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-weight: bold; margin-right: 15px; background-size: cover; }
+        .nickname { font-size: 18px; font-weight: bold; }
+        .org { background: #6C46BC; font-size: 10px; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; }
+        
+        .section-title { color: #FF4141; font-size: 11px; text-transform: uppercase; margin: 25px 0 10px 5px; display: flex; align-items: center; }
+        .section-title::before { content: ''; width: 12px; height: 2px; background: #FF4141; margin-right: 8px; }
+
+        .card { background: #1A1A20; border-radius: 20px; padding: 18px; margin-bottom: 15px; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 14px; border-bottom: 1px solid #25252b; padding-bottom: 8px; }
+        .row:last-child { border-bottom: none; margin-bottom: 0; }
         .label { color: #88888E; }
-        .val { font-weight: 500; text-align: right; word-break: break-all; margin-left: 15px; }
-        .highlight { color: #FF4141; text-decoration: none; } /* Ссылка красного цвета без подчеркивания */
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .grid-item { background: #1A1A20; border-radius: 18px; padding: 15px 5px; text-align: center; }
-        .grid-val { font-size: 20px; font-weight: bold; color: #FF4141; margin-bottom: 5px; }
-        .grid-label { font-size: 8px; color: #88888E; text-transform: uppercase; font-weight: bold; }
-        .update-btn { margin-top: 20px; width: 100%; padding: 12px; border-radius: 15px; border: 1px solid #25252b; background: rgba(26, 26, 32, 0.5); color: #88888E; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .val { font-weight: 500; text-align: right; }
+        .highlight { color: #FF4141; text-decoration: none; }
+
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .grid-item { background: #1A1A20; border-radius: 15px; padding: 12px 5px; text-align: center; }
+        .grid-val { font-size: 18px; font-weight: bold; color: #FF4141; margin-bottom: 4px; }
+        .grid-label { font-size: 8px; color: #88888E; text-transform: uppercase; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="avatar" id="user_avatar"></div>
+        <div id="user_avatar" class="avatar"></div>
         <div>
-            <div class="nickname" id="nick">ЗАГРУЗКА...</div>
+            <div class="nickname" id="nick">NICKNAME</div>
             <div class="org" id="org_val">SURGUT</div>
         </div>
     </div>
 
-    <div class="section-title">Успеваемость</div>
+    <div class="section-title">📊 Успеваемость</div>
     <div class="grid">
         <div class="grid-item"><div class="grid-val" id="balls">0</div><div class="grid-label">Баллы</div></div>
         <div class="grid-item"><div class="grid-val" id="vigs">0</div><div class="grid-label">Выговоры</div></div>
@@ -48,55 +44,60 @@
         <div class="grid-item"><div class="grid-val" id="usts">0</div><div class="grid-label">Устники</div></div>
     </div>
 
+    <div class="section-title">📌 Основная информация</div>
+    <div class="card">
+        <div class="row"><div class="label">Должность:</div><div class="val highlight" id="post">---</div></div>
+        <div class="row"><div class="label">Добавил:</div><div class="val" id="added">---</div></div>
+        <div class="row"><div class="label">Дата назначения:</div><div class="val" id="date">---</div></div>
+        <div class="row"><div class="label">Дней на посту:</div><div class="val" id="days">0</div></div>
+        <div class="row"><div class="label">Возраст / Пояс:</div><div class="val"><span id="age">--</span> / <span id="tz">--</span></div></div>
+    </div>
+
     <div class="section-title">📞 Контакты</div>
     <div class="card">
         <div class="row"><div class="label">TG Username:</div><div class="val highlight" id="tg_user">@---</div></div>
-        <div class="row"><div class="label">TG ID:</div><div class="val" id="tg_id">---</div></div>
-        <div class="row"><div class="label">VK:</div><a href="#" class="val highlight" id="vk_link">Профиль VK</a></div>
         <div class="row"><div class="label">Discord ID:</div><div class="val" id="ds_id">---</div></div>
-        <div class="row"><div class="label">Почта:</div><div class="val" id="email">---</div></div>
+        <div class="row"><div class="label">Почта:</div><div class="val" id="mail">---</div></div>
+        <div class="row"><div class="label">VK:</div><a href="#" class="val highlight" id="vk_link">Профиль VK</a></div>
         <div class="row"><div class="label">Форум:</div><a href="#" class="val highlight" id="forum_link">Перейти</a></div>
     </div>
-
-    <button class="update-btn" onclick="location.reload()">
-        <span>🔄</span> Обновить данные
-    </button>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.ready();
+        const p = new URLSearchParams(window.location.search);
 
-        const params = new URLSearchParams(window.location.search);
-
-        // Аватар
-        const avatarBox = document.getElementById('user_avatar');
-        if (tg.initDataUnsafe.user && tg.initDataUnsafe.user.photo_url) {
-            avatarBox.style.backgroundImage = `url('${tg.initDataUnsafe.user.photo_url}')`;
+        // Аватар из ТГ
+        if (tg.initDataUnsafe.user?.photo_url) {
+            document.getElementById('user_avatar').style.backgroundImage = `url('${tg.initDataUnsafe.user.photo_url}')`;
         } else {
-            avatarBox.innerText = (params.get('nick') || "T")[0].toUpperCase();
+            document.getElementById('user_avatar').innerText = (p.get('nick') || "T")[0].toUpperCase();
         }
 
-        // Текстовые данные
-        document.getElementById('nick').innerText = (params.get('nick') || "Неизвестно").toUpperCase();
-        document.getElementById('org_val').innerText = params.get('org') || "SURGUT";
-        document.getElementById('balls').innerText = params.get('balls') || "0";
-        document.getElementById('vigs').innerText = params.get('vigs') || "0";
-        document.getElementById('preds').innerText = params.get('preds') || "0";
-        document.getElementById('usts').innerText = params.get('usts') || "0";
+        // Заполнение всех полей
+        document.getElementById('nick').innerText = (p.get('nick') || "---").toUpperCase();
+        document.getElementById('org_val').innerText = p.get('org') || "SURGUT";
+        document.getElementById('post').innerText = p.get('post') || "---";
+        document.getElementById('added').innerText = p.get('added') || "---";
+        document.getElementById('date').innerText = p.get('date') || "---";
+        document.getElementById('days').innerText = p.get('days') || "0";
+        document.getElementById('age').innerText = p.get('age') || "--";
+        document.getElementById('tz').innerText = p.get('tz') || "--";
+        
+        document.getElementById('balls').innerText = p.get('balls') || "0";
+        document.getElementById('vigs').innerText = p.get('vigs') || "0";
+        document.getElementById('preds').innerText = p.get('preds') || "0";
+        document.getElementById('usts').innerText = p.get('usts') || "0";
 
-        // Контакты и ССЫЛКИ
-        document.getElementById('tg_user').innerText = "@" + (params.get('tg_name') || "---");
-        document.getElementById('tg_id').innerText = params.get('tid') || "---";
-        document.getElementById('ds_id').innerText = params.get('ds') || "---";
-        document.getElementById('email').innerText = params.get('mail') || "---";
+        document.getElementById('tg_user').innerText = "@" + (p.get('tg_name') || "---");
+        document.getElementById('ds_id').innerText = p.get('ds') || "---";
+        document.getElementById('mail').innerText = p.get('mail') || "---";
+
+        // Ссылки
+        if (p.get('vk')) document.getElementById('vk_link').href = p.get('vk').includes('http') ? p.get('vk') : `https://vk.com/id${p.get('vk')}`;
+        if (p.get('forum')) document.getElementById('forum_link').href = p.get('forum');
         
-        // Установка ссылок для кнопок VK и Форума
-        const vkUrl = params.get('vk');
-        if (vkUrl) document.getElementById('vk_link').href = vkUrl.startsWith('http') ? vkUrl : `https://vk.com/id${vkUrl}`;
-        
-        const forumUrl = params.get('forum');
-        if (forumUrl) document.getElementById('forum_link').href = forumUrl;
+        tg.ready();
     </script>
 </body>
 </html>
