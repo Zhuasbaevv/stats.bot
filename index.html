@@ -14,10 +14,10 @@
         .section-title::before { content: ''; width: 12px; height: 2px; background: #FF4141; margin-right: 8px; }
         .card { background: #1A1A20; border-radius: 20px; padding: 18px; margin-bottom: 15px; }
         .row { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 14px; border-bottom: 1px solid #25252b; padding-bottom: 8px; align-items: center; }
-        .row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .row:last-child { border-bottom: none; margin-bottom: 0; }
         .label { color: #88888E; }
         .val { font-weight: 500; text-align: right; word-break: break-all; }
-        .highlight { color: #FF4141; text-decoration: none; font-weight: bold; }
+        .highlight { color: #FF4141; text-decoration: none; font-weight: bold; cursor: pointer; }
         .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
         .grid-item { background: #1A1A20; border-radius: 15px; padding: 12px 5px; text-align: center; }
         .grid-val { font-size: 18px; font-weight: bold; color: #FF4141; margin-bottom: 4px; }
@@ -31,30 +31,31 @@
     </div>
 
     <div class="section-title">📊 Успеваемость</div>
-    <div class="grid">
+    <div class="grid" id="stats_grid">
         <div class="grid-item"><div class="grid-val" id="balls">0</div><div class="grid-label">Баллы</div></div>
         <div class="grid-item"><div class="grid-val" id="vigs">0</div><div class="grid-label">Выговоры</div></div>
         <div class="grid-item"><div class="grid-val" id="preds">0</div><div class="grid-label">Пред-ия</div></div>
         <div class="grid-item"><div class="grid-val" id="usts">0</div><div class="grid-label">Устники</div></div>
     </div>
 
-    <div class="section-title">📌 Основная информация</div>
-    <div class="card">
+    <div class="section-title">📌 Информация</div>
+    <div class="card" id="info_card">
         <div class="row"><div class="label">Должность:</div><div class="val highlight" id="post">---</div></div>
         <div class="row"><div class="label">Добавил:</div><div class="val" id="added">---</div></div>
-        <div class="row"><div class="label">Дата назначения:</div><div class="val" id="date">---</div></div>
-        <div class="row"><div class="label">Дней на посту:</div><div class="val" id="days">0</div></div>
-        <div class="row"><div class="label">Возраст / Пояс:</div><div class="val"><span id="age">--</span> / <span id="tz">--</span></div></div>
+        <div class="row"><div class="label">Назначен:</div><div class="val" id="date">---</div></div>
+        <div class="row"><div class="label">Дней:</div><div class="val" id="days">0</div></div>
+        <div class="row"><div class="label">Возраст/Пояс:</div><div class="val"><span id="age">--</span> / <span id="tz">--</span></div></div>
     </div>
 
     <div class="section-title">📞 Контакты</div>
     <div class="card">
         <div class="row"><div class="label">TG ID:</div><div class="val" id="tg_id">---</div></div>
         <div class="row"><div class="label">Discord ID:</div><div class="val" id="ds_id">---</div></div>
-        <div class="row"><div class="label">Discord Link:</div><a href="#" class="val highlight" id="ds_link">Перейти в Discord</a></div>
+        <div class="row"><div class="label">Discord Link:</div><div class="val highlight" id="ds_link">Перейти в Discord</div></div>
+        
         <div class="row"><div class="label">Почта:</div><div class="val" id="mail">---</div></div>
-        <div class="row"><div class="label">VK:</div><a href="#" class="val highlight" id="vk_link">Профиль VK</a></div>
-        <div class="row"><div class="label">Форум:</div><a href="#" class="val highlight" id="forum_link">Перейти на форум</a></div>
+        <div class="row"><div class="label">VK:</div><div class="val highlight" id="vk_link">Профиль VK</div></div>
+        <div class="row"><div class="label">Форум:</div><div class="val highlight" id="forum_link">Перейти</div></div>
     </div>
 
     <script>
@@ -62,16 +63,22 @@
         tg.expand();
         const p = new URLSearchParams(window.location.search);
 
-        function openL(url) { if (url && url !== "#") tg.openLink(url); }
+        // Функция открытия ссылки через Telegram WebApp
+        function go(url) {
+            if (url && url !== "#") {
+                tg.openLink(url);
+            }
+        }
 
+        // Аватар
         if (tg.initDataUnsafe.user?.photo_url) {
             document.getElementById('user_avatar').style.backgroundImage = `url('${tg.initDataUnsafe.user.photo_url}')`;
         } else {
             document.getElementById('user_avatar').innerText = (p.get('nick') || "U")[0].toUpperCase();
         }
 
+        // Заполнение текста
         document.getElementById('nick').innerText = (p.get('nick') || "---").toUpperCase();
-        document.getElementById('org_val').innerText = p.get('org') || "SURGUT";
         document.getElementById('post').innerText = p.get('post') || "---";
         document.getElementById('added').innerText = p.get('added') || "---";
         document.getElementById('date').innerText = p.get('date') || "---";
@@ -86,19 +93,28 @@
         document.getElementById('mail').innerText = p.get('mail') || "---";
         document.getElementById('ds_id').innerText = p.get('ds') || "---";
 
-        // Ссылки напрямую
-        const vk = p.get('vk');
-        if (vk) document.getElementById('vk_link').onclick = (e) => { e.preventDefault(); openL(vk.includes('http') ? vk : `https://vk.com/id${vk}`); };
+        // КЛИКИ ПО ССЫЛКАМ
+        
+        // VK
+        const vkVal = p.get('vk');
+        if (vkVal) {
+            const link = vkVal.includes('http') ? vkVal : `https://vk.com/id${vkVal}`;
+            document.getElementById('vk_link').onclick = () => go(link);
+        }
 
-        const fr = p.get('forum');
-        if (fr) document.getElementById('forum_link').onclick = (e) => { e.preventDefault(); openL(fr); };
+        // Forum
+        const forumVal = p.get('forum');
+        if (forumVal) {
+            document.getElementById('forum_link').onclick = () => go(forumVal);
+        }
 
-        const dsl = p.get('ds_url');
-        const dsi = p.get('ds');
-        document.getElementById('ds_link').onclick = (e) => { 
-            e.preventDefault(); 
-            openL(dsl ? dsl : `https://discordapp.com/users/${dsi}`); 
-        };
+        // Discord (Переход по ID профиля)
+        const dsId = p.get('ds');
+        if (dsId && dsId !== "---") {
+            // Формат ссылки на профиль Discord по ID
+            const dsUrl = `https://discord.com/users/${dsId}`;
+            document.getElementById('ds_link').onclick = () => go(dsUrl);
+        }
 
         tg.ready();
     </script>
