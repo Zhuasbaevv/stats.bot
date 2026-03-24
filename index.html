@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background: #101014; color: white; font-family: sans-serif; padding: 15px; margin: 0; }
+        .header { display: flex; align-items: center; margin-bottom: 20px; }
+        .avatar { width: 50px; height: 50px; background: #1A1A20; border: 2px solid #FF4141; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 24px; font-weight: bold; margin-right: 15px; }
+        .nickname { font-size: 18px; font-weight: bold; }
+        .org { background: #6C46BC; font-size: 10px; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; text-transform: uppercase; }
+        
+        .section-title { color: #FF4141; font-size: 11px; text-transform: uppercase; margin: 25px 0 10px 5px; display: flex; align-items: center; letter-spacing: 1px; }
+        .section-title::before { content: '📌'; margin-right: 8px; font-size: 14px; }
+
+        .card { background: #1A1A20; border-radius: 20px; padding: 18px; margin-bottom: 15px; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 14px; border-bottom: 1px solid #25252b; padding-bottom: 8px; }
+        .row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .label { color: #88888E; }
+        .val { font-weight: 500; text-align: right; }
+        .highlight { color: #FF4141; }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+        .grid-item { background: #1A1A20; border-radius: 20px; padding: 15px; text-align: center; }
+        .grid-val { font-size: 22px; font-weight: bold; color: #FF4141; margin-bottom: 4px; }
+        .grid-label { font-size: 9px; color: #88888E; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="avatar" id="avatar">T</div>
+        <div>
+            <div class="nickname" id="nick">Загрузка...</div>
+            <div class="org" id="org_val">SURGUT</div>
+        </div>
+    </div>
+
+    <div class="section-title">Основная информация</div>
+    <div class="card">
+        <div class="row"><div class="label">Должность:</div><div class="val highlight" id="post">---</div></div>
+        <div class="row"><div class="label">Добавил:</div><div class="val" id="added_by">---</div></div>
+        <div class="row"><div class="label">Дата назначения:</div><div class="val" id="reg_date">---</div></div>
+        <div class="row"><div class="label">Дней на должности:</div><div class="val" id="days_count">0</div></div>
+        <div class="row"><div class="label">Часовой пояс:</div><div class="val" id="tz">---</div></div>
+    </div>
+
+    <div class="section-title">Успеваемость</div>
+    <div class="grid">
+        <div class="grid-item"><div class="grid-val" id="balls_val">0</div><div class="grid-label">Баллы</div></div>
+        <div class="grid-item"><div class="grid-val" id="vigs_val">0</div><div class="grid-label">Выговоры</div></div>
+        <div class="grid-item"><div class="grid-val" id="preds_val">0</div><div class="grid-label">Пред-ия</div></div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        // Берем данные прямо из Telegram (для начала)
+        const user = tg.initDataUnsafe.user;
+        if (user) {
+            document.getElementById('nick').innerText = user.username || (user.first_name + " " + (user.last_name || ""));
+            document.getElementById('avatar').innerText = (user.username || user.first_name)[0].toUpperCase();
+        }
+        
+        // В будущем здесь будет fetch запрос к твоему боту для получения данных из БД
+    </script>
+</body>
+</html>
