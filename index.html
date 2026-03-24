@@ -52,19 +52,31 @@
         <div class="grid-item"><div class="grid-val" id="preds_val">0</div><div class="grid-label">Пред-ия</div></div>
     </div>
 
+    
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.ready();
 
-        // Берем данные прямо из Telegram (для начала)
-        const user = tg.initDataUnsafe.user;
-        if (user) {
-            document.getElementById('nick').innerText = user.username || (user.first_name + " " + (user.last_name || ""));
-            document.getElementById('avatar').innerText = (user.username || user.first_name)[0].toUpperCase();
-        }
-        
-        // В будущем здесь будет fetch запрос к твоему боту для получения данных из БД
-    </script>
-</body>
-</html>
+    // Функция для получения данных из ссылки
+    const urlParams = new URLSearchParams(window.location.search);
+
+    // Заполняем данными с бота
+    const nick = urlParams.get('nick') || "Неизвестно";
+    document.getElementById('nick').innerText = nick;
+    document.getElementById('avatar').innerText = nick[0].toUpperCase();
+    
+    document.getElementById('org_val').innerText = urlParams.get('org') || "SURGUT";
+    document.getElementById('post').innerText = urlParams.get('post') || "---";
+    document.getElementById('added_by').innerText = urlParams.get('added') || "---";
+    document.getElementById('reg_date').innerText = urlParams.get('date') || "---";
+    document.getElementById('days_count').innerText = urlParams.get('days') || "0";
+    document.getElementById('tz').innerText = urlParams.get('tz') || "---";
+    
+    document.getElementById('balls_val').innerText = urlParams.get('balls') || "0";
+    document.getElementById('vigs_val').innerText = urlParams.get('vigs') || "0";
+    document.getElementById('preds_val').innerText = urlParams.get('preds') || "0";
+
+    // Сообщаем ТГ, что всё готово
+    tg.ready();
+</script>
