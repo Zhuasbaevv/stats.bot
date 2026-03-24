@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,21 +7,21 @@
     <style>
         body { background: #101014; color: white; font-family: sans-serif; padding: 15px; margin: 0; }
         .header { display: flex; align-items: center; margin-bottom: 20px; }
-        .avatar { width: 60px; height: 60px; background: #1A1A20; border: 2px solid #FF4141; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-weight: bold; margin-right: 15px; background-size: cover; }
+        .avatar { width: 60px; height: 60px; background: #1A1A20; border: 2px solid #FF4141; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-weight: bold; margin-right: 15px; background-size: cover; background-position: center; }
         .nickname { font-size: 18px; font-weight: bold; }
-        .org { background: #6C46BC; font-size: 10px; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; }
+        .org { background: #6C46BC; font-size: 10px; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; text-transform: uppercase; }
         
-        .section-title { color: #FF4141; font-size: 11px; text-transform: uppercase; margin: 25px 0 10px 5px; display: flex; align-items: center; }
+        .section-title { color: #FF4141; font-size: 11px; text-transform: uppercase; margin: 25px 0 10px 5px; display: flex; align-items: center; letter-spacing: 1px; }
         .section-title::before { content: ''; width: 12px; height: 2px; background: #FF4141; margin-right: 8px; }
 
         .card { background: #1A1A20; border-radius: 20px; padding: 18px; margin-bottom: 15px; }
         .row { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 14px; border-bottom: 1px solid #25252b; padding-bottom: 8px; }
-        .row:last-child { border-bottom: none; margin-bottom: 0; }
+        .row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .label { color: #88888E; }
-        .val { font-weight: 500; text-align: right; }
+        .val { font-weight: 500; text-align: right; word-break: break-all; }
         .highlight { color: #FF4141; text-decoration: none; }
 
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
         .grid-item { background: #1A1A20; border-radius: 15px; padding: 12px 5px; text-align: center; }
         .grid-val { font-size: 18px; font-weight: bold; color: #FF4141; margin-bottom: 4px; }
         .grid-label { font-size: 8px; color: #88888E; text-transform: uppercase; }
@@ -31,7 +31,7 @@
     <div class="header">
         <div id="user_avatar" class="avatar"></div>
         <div>
-            <div class="nickname" id="nick">NICKNAME</div>
+            <div class="nickname" id="nick">ЗАГРУЗКА...</div>
             <div class="org" id="org_val">SURGUT</div>
         </div>
     </div>
@@ -55,8 +55,8 @@
 
     <div class="section-title">📞 Контакты</div>
     <div class="card">
-        <div class="row"><div class="label">TG Username:</div><div class="val highlight" id="tg_user">@---</div></div>
-        <div class="row"><div class="label">Discord ID:</div><div class="val" id="ds_id">---</div></div>
+        <div class="row"><div class="label">TG ID:</div><div class="val" id="tg_id">---</div></div>
+        <div class="row"><div class="label">Discord:</div><div class="val" id="ds_id">---</div></div>
         <div class="row"><div class="label">Почта:</div><div class="val" id="mail">---</div></div>
         <div class="row"><div class="label">VK:</div><a href="#" class="val highlight" id="vk_link">Профиль VK</a></div>
         <div class="row"><div class="label">Форум:</div><a href="#" class="val highlight" id="forum_link">Перейти</a></div>
@@ -67,36 +67,42 @@
         tg.expand();
         const p = new URLSearchParams(window.location.search);
 
-        // Аватар из ТГ
-        if (tg.initDataUnsafe.user?.photo_url) {
-            document.getElementById('user_avatar').style.backgroundImage = `url('${tg.initDataUnsafe.user.photo_url}')`;
-        } else {
-            document.getElementById('user_avatar').innerText = (p.get('nick') || "T")[0].toUpperCase();
+        try {
+            // Аватар
+            if (tg.initDataUnsafe.user && tg.initDataUnsafe.user.photo_url) {
+                document.getElementById('user_avatar').style.backgroundImage = `url('${tg.initDataUnsafe.user.photo_url}')`;
+            } else {
+                document.getElementById('user_avatar').innerText = (p.get('nick') || "U")[0].toUpperCase();
+            }
+
+            // Заполнение (Инфа)
+            document.getElementById('nick').innerText = (p.get('nick') || "---").toUpperCase();
+            document.getElementById('org_val').innerText = p.get('org') || "SURGUT";
+            document.getElementById('post').innerText = p.get('post') || "---";
+            document.getElementById('added').innerText = p.get('added') || "---";
+            document.getElementById('date').innerText = p.get('date') || "---";
+            document.getElementById('days').innerText = p.get('days') || "0";
+            document.getElementById('age').innerText = p.get('age') || "--";
+            document.getElementById('tz').innerText = p.get('tz') || "--";
+
+            // Успеваемость
+            document.getElementById('balls').innerText = p.get('balls') || "0";
+            document.getElementById('vigs').innerText = p.get('vigs') || "0";
+            document.getElementById('preds').innerText = p.get('preds') || "0";
+            document.getElementById('usts').innerText = p.get('usts') || "0";
+
+            // Контакты
+            document.getElementById('tg_id').innerText = p.get('tid') || "---";
+            document.getElementById('ds_id').innerText = p.get('ds') || "---";
+            document.getElementById('mail').innerText = p.get('mail') || "---";
+
+            // Ссылки
+            if (p.get('vk')) document.getElementById('vk_link').href = p.get('vk').includes('http') ? p.get('vk') : `https://vk.com/id${p.get('vk')}`;
+            if (p.get('forum')) document.getElementById('forum_link').href = p.get('forum');
+        } catch (e) {
+            console.log("Ошибка загрузки данных:", e);
         }
 
-        // Заполнение всех полей
-        document.getElementById('nick').innerText = (p.get('nick') || "---").toUpperCase();
-        document.getElementById('org_val').innerText = p.get('org') || "SURGUT";
-        document.getElementById('post').innerText = p.get('post') || "---";
-        document.getElementById('added').innerText = p.get('added') || "---";
-        document.getElementById('date').innerText = p.get('date') || "---";
-        document.getElementById('days').innerText = p.get('days') || "0";
-        document.getElementById('age').innerText = p.get('age') || "--";
-        document.getElementById('tz').innerText = p.get('tz') || "--";
-        
-        document.getElementById('balls').innerText = p.get('balls') || "0";
-        document.getElementById('vigs').innerText = p.get('vigs') || "0";
-        document.getElementById('preds').innerText = p.get('preds') || "0";
-        document.getElementById('usts').innerText = p.get('usts') || "0";
-
-        document.getElementById('tg_user').innerText = "@" + (p.get('tg_name') || "---");
-        document.getElementById('ds_id').innerText = p.get('ds') || "---";
-        document.getElementById('mail').innerText = p.get('mail') || "---";
-
-        // Ссылки
-        if (p.get('vk')) document.getElementById('vk_link').href = p.get('vk').includes('http') ? p.get('vk') : `https://vk.com/id${p.get('vk')}`;
-        if (p.get('forum')) document.getElementById('forum_link').href = p.get('forum');
-        
         tg.ready();
     </script>
 </body>
