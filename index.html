@@ -8,8 +8,13 @@
         body { background: #101014; color: white; font-family: sans-serif; padding: 15px; margin: 0; overflow-x: hidden; }
         
         /* Стили шапки */
-        .header { display: flex; align-items: center; margin-bottom: 20px; }
+        .header { display: flex; align-items: center; margin-bottom: 20px; justify-content: space-between; }
+        .user-info { display: flex; align-items: center; }
         .avatar { width: 60px; height: 60px; background: #1A1A20; border: 2px solid #FF4141; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-weight: bold; margin-right: 15px; background-size: cover; background-position: center; }
+        
+        /* Кнопка музыки */
+        #music_toggle { width: 45px; height: 45px; background: #1A1A20; border-radius: 15px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 20px; border: 1px solid #25252b; }
+
         .nickname { font-size: 18px; font-weight: bold; }
         .org { background: #6C46BC; font-size: 10px; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; text-transform: uppercase; }
 
@@ -30,25 +35,11 @@
         .grid-val { font-size: 18px; font-weight: bold; color: #FF4141; margin-bottom: 4px; }
         .grid-label { font-size: 8px; color: #88888E; text-transform: uppercase; }
 
-        /* --- СТИЛИ ОКНА ЗАЩИТЫ --- */
-        #auth_modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #101014; z-index: 10000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.3s;
-        }
+        #auth_modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #101014; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.3s; }
         .auth-card { background: #1A1A20; padding: 30px; border-radius: 25px; text-align: center; width: 80%; max-width: 300px; border: 1px solid #25252b; }
         .auth-card h2 { color: #FF4141; font-size: 18px; margin-bottom: 10px; }
-        .auth-card p { color: #88888E; font-size: 12px; margin-bottom: 20px; }
-        .auth-input { 
-            width: 100%; background: #101014; border: 1px solid #25252b; 
-            padding: 12px; border-radius: 12px; color: white; text-align: center;
-            font-size: 18px; outline: none; margin-bottom: 15px; box-sizing: border-box;
-        }
-        .auth-btn { 
-            background: #FF4141; color: white; border: none; padding: 12px 30px; 
-            border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer;
-        }
+        .auth-input { width: 100%; background: #101014; border: 1px solid #25252b; padding: 12px; border-radius: 12px; color: white; text-align: center; font-size: 18px; outline: none; margin-bottom: 15px; box-sizing: border-box; }
+        .auth-btn { background: #FF4141; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -57,7 +48,7 @@
     <div id="auth_modal" class="hidden">
         <div class="auth-card">
             <h2>ЗАЩИТА ДОСТУПА</h2>
-            <p>Введите ваш личный пароль, установленный в боте</p>
+            <p>Введите ваш личный пароль</p>
             <input type="password" id="pass_input" class="auth-input" placeholder="••••">
             <button class="auth-btn" onclick="checkPass()">ПОДТВЕРДИТЬ</button>
         </div>
@@ -65,11 +56,14 @@
 
     <div id="main_content">
         <div class="header">
-            <div id="user_avatar" class="avatar"></div>
-            <div>
-                <div class="nickname" id="nick">ЗАГРУЗКА...</div>
-                <div class="org" id="org_val">SURGUT</div>
+            <div class="user-info">
+                <div id="user_avatar" class="avatar"></div>
+                <div>
+                    <div class="nickname" id="nick">ЗАГРУЗКА...</div>
+                    <div class="org" id="org_val">SURGUT</div>
+                </div>
             </div>
+            <div id="music_toggle">🎵</div>
         </div>
 
         <div class="section-title">📊 Успеваемость</div>
@@ -105,11 +99,32 @@
         tg.expand();
         const p = new URLSearchParams(window.location.search);
 
+        // --- ЛОГИКА ПЛЕЕРА ---
+        const musicUrl = p.get('music');
+        let audio = null;
+        let isPlaying = false;
+        const musicBtn = document.getElementById('music_toggle');
+
+        if (musicUrl && musicUrl !== "none") {
+            audio = new Audio(musicUrl);
+            musicBtn.onclick = () => {
+                if (!isPlaying) {
+                    audio.play();
+                    musicBtn.innerText = "🔊";
+                    isPlaying = true;
+                } else {
+                    audio.pause();
+                    musicBtn.innerText = "🔇";
+                    isPlaying = false;
+                }
+            };
+        } else {
+            musicBtn.style.display = 'none';
+        }
+
         // --- ЛОГИКА ЗАЩИТЫ ---
         const correctPass = p.get('pass');
-        
         if (correctPass && correctPass !== "None" && correctPass !== "null") {
-            // Если пароль есть в базе, показываем окно ввода
             document.getElementById('auth_modal').classList.remove('hidden');
             document.getElementById('main_content').style.filter = "blur(10px)";
         }
