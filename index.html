@@ -2,57 +2,92 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Личный кабинет</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Стили для модального окна входа */
-        #auth_modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #1a1a1a; color: white; display: flex;
-            flex-direction: column; align-items: center; justify-content: center;
-        }
-        input { margin: 10px; padding: 10px; width: 250px; }
-        button { padding: 10px 20px; cursor: pointer; }
-        .hidden { display: none !important; }
+        body { background: #101014; color: white; font-family: sans-serif; padding: 15px; margin: 0; }
+        .header { display: flex; align-items: center; margin-bottom: 20px; justify-content: space-between; }
+        .avatar { width: 60px; height: 60px; background: #1A1A20; border: 2px solid #FF4141; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-weight: bold; margin-right: 15px; background-size: cover; }
+        .nickname { font-size: 18px; font-weight: bold; }
+        .org { background: #6C46BC; font-size: 10px; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; text-transform: uppercase; }
+        .section-title { color: #FF4141; font-size: 11px; text-transform: uppercase; margin: 25px 0 10px 5px; display: flex; align-items: center; letter-spacing: 1px; }
+        .card { background: #1A1A20; border-radius: 20px; padding: 18px; margin-bottom: 15px; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 14px; border-bottom: 1px solid #25252b; padding-bottom: 8px; }
+        .label { color: #88888E; }
+        .val { font-weight: 500; text-align: right; color: white; }
+        
+        /* Модалка входа */
+        #auth_modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #101014; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .auth-card { background: #1A1A20; padding: 30px; border-radius: 25px; text-align: center; width: 80%; border: 1px solid #25252b; }
+        .auth-input { width: 100%; background: #101014; border: 1px solid #25252b; padding: 12px; border-radius: 12px; color: white; text-align: center; margin-bottom: 15px; box-sizing: border-box; }
+        .auth-btn { background: #FF4141; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="auth_modal">
-        <h2>Вход в систему</h2>
-        <input type="text" id="id_input" placeholder="Введите ваш Telegram ID">
-        <input type="password" id="pass_input" placeholder="Введите ваш пароль">
-        <button onclick="checkAuth()">Войти</button>
+    <div id="auth_modal" style="display: none;">
+        <div class="auth-card">
+            <h2>ЗАЩИТА ДОСТУПА</h2>
+            <p>Введите ваш личный пароль</p>
+            <input type="password" id="pass_input" class="auth-input" placeholder="••••">
+            <button class="auth-btn" onclick="checkPass()">ПОДТВЕРДИТЬ</button>
+        </div>
     </div>
 
-    <div id="main_content" class="hidden">
-        <h1>Добро пожаловать, <span id="nick"></span>!</h1>
-        <p>Ваши баллы: <span id="balls"></span></p>
-    </div>
+    <div id="main_content">
+        <div class="header">
+            <div class="user-info" style="display:flex; align-items:center;">
+                <div id="user_avatar" class="avatar"></div>
+                <div>
+                    <div class="nickname" id="nick">ЗАГРУЗКА...</div>
+                    <div class="org" id="org_val">SURGUT</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">📊 Успеваемость</div>
+        <div class="card">
+            <div class="row"><div class="label">Баллы:</div><div class="val" id="balls">0</div></div>
+            <div class="row"><div class="label">Выговоры:</div><div class="val" id="vigs">0</div></div>
+            <div class="row"><div class="label">Преды:</div><div class="val" id="preds">0</div></div>
+        </div>
+
+        </div>
 
     <script>
-        async function checkAuth() {
-            const id = document.getElementById('id_input').value;
-            const pass = document.getElementById('pass_input').value;
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        const p = new URLSearchParams(window.location.search);
+        
+        // 1. Проверка пароля
+        const correctPass = p.get('pass');
+        const authModal = document.getElementById('auth_modal');
+        
+        if (correctPass && correctPass !== "None" && correctPass !== "null") {
+            authModal.style.display = 'flex';
+        } else {
+            authModal.style.display = 'none';
+        }
 
-            // Загружаем список из файла db.json (который лежит у тебя в папке сайта)
-            const response = await fetch('db.json');
-            const users = await response.json();
-
-            // Ищем пользователя с таким ID и ПАРОЛЕМ
-            const user = users.find(u => u.id == id && u.pass == pass);
-
-            if (user) {
-                // Если данные верны, прячем окно входа и показываем сайт
-                document.getElementById('auth_modal').classList.add('hidden');
-                document.getElementById('main_content').classList.remove('hidden');
-                
-                // Подставляем данные в поля
-                document.getElementById('nick').innerText = user.nick;
-                document.getElementById('balls').innerText = user.balls;
+        function checkPass() {
+            const input = document.getElementById('pass_input').value;
+            if (input === correctPass) {
+                authModal.style.display = 'none';
+                tg.HapticFeedback.notificationOccurred('success');
             } else {
-                alert("❌ Неверный ID или пароль!");
+                alert("❌ Неверный пароль!");
+                tg.HapticFeedback.notificationOccurred('error');
             }
         }
+
+        // 2. Заполнение данных
+        document.getElementById('nick').innerText = (p.get('nick') || "ГОСТЬ").toUpperCase();
+        document.getElementById('org_val').innerText = p.get('org') || "ORGANIZATION";
+        document.getElementById('balls').innerText = p.get('balls') || "0";
+        document.getElementById('vigs').innerText = p.get('vigs') || "0";
+        document.getElementById('preds').innerText = p.get('preds') || "0";
+
+        tg.ready();
     </script>
 </body>
 </html>
