@@ -1,93 +1,203 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body { background: #101014; color: white; font-family: sans-serif; padding: 15px; margin: 0; }
-        .header { display: flex; align-items: center; margin-bottom: 20px; justify-content: space-between; }
-        .avatar { width: 60px; height: 60px; background: #1A1A20; border: 2px solid #FF4141; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-weight: bold; margin-right: 15px; background-size: cover; }
-        .nickname { font-size: 18px; font-weight: bold; }
-        .org { background: #6C46BC; font-size: 10px; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; text-transform: uppercase; }
-        .section-title { color: #FF4141; font-size: 11px; text-transform: uppercase; margin: 25px 0 10px 5px; display: flex; align-items: center; letter-spacing: 1px; }
-        .card { background: #1A1A20; border-radius: 20px; padding: 18px; margin-bottom: 15px; }
-        .row { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 14px; border-bottom: 1px solid #25252b; padding-bottom: 8px; }
-        .label { color: #88888E; }
-        .val { font-weight: 500; text-align: right; color: white; }
-        
-        /* Модалка входа */
-        #auth_modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #101014; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .auth-card { background: #1A1A20; padding: 30px; border-radius: 25px; text-align: center; width: 80%; border: 1px solid #25252b; }
-        .auth-input { width: 100%; background: #101014; border: 1px solid #25252b; padding: 12px; border-radius: 12px; color: white; text-align: center; margin-bottom: 15px; box-sizing: border-box; }
-        .auth-btn { background: #FF4141; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { background: #101014; color: white; font-family: sans-serif; padding: 15px; margin: 0; overflow-x: hidden; }
+        
+        /* Стили шапки */
+        .header { display: flex; align-items: center; margin-bottom: 20px; justify-content: space-between; }
+        .user-info { display: flex; align-items: center; }
+        .avatar { width: 60px; height: 60px; background: #1A1A20; border: 2px solid #FF4141; border-radius: 15px; display: flex; justify-content: center; align-items: center; font-weight: bold; margin-right: 15px; background-size: cover; background-position: center; }
+        
+        /* Кнопка музыки */
+        #music_toggle { width: 45px; height: 45px; background: #1A1A20; border-radius: 15px; display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 20px; border: 1px solid #25252b; }
+
+        .nickname { font-size: 18px; font-weight: bold; }
+        .org { background: #6C46BC; font-size: 10px; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px; text-transform: uppercase; }
+
+        /* Заголовки секций */
+        .section-title { color: #FF4141; font-size: 11px; text-transform: uppercase; margin: 25px 0 10px 5px; display: flex; align-items: center; letter-spacing: 1px; }
+        .section-title::before { content: ''; width: 12px; height: 2px; background: #FF4141; margin-right: 8px; }
+
+        /* Карточки и сетка */
+        .card { background: #1A1A20; border-radius: 20px; padding: 18px; margin-bottom: 15px; }
+        .row { display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 14px; border-bottom: 1px solid #25252b; padding-bottom: 8px; align-items: center; }
+        .row:last-child { border-bottom: none; margin-bottom: 0; }
+        .label { color: #88888E; }
+        .val { font-weight: 500; text-align: right; word-break: break-all; }
+        .highlight { color: #FF4141; text-decoration: none; font-weight: bold; cursor: pointer; }
+        
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 15px; }
+        .grid-item { background: #1A1A20; border-radius: 15px; padding: 12px 5px; text-align: center; }
+        .grid-val { font-size: 18px; font-weight: bold; color: #FF4141; margin-bottom: 4px; }
+        .grid-label { font-size: 8px; color: #88888E; text-transform: uppercase; }
+
+        #auth_modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #101014; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.3s; }
+        .auth-card { background: #1A1A20; padding: 30px; border-radius: 25px; text-align: center; width: 80%; max-width: 300px; border: 1px solid #25252b; }
+        .auth-card h2 { color: #FF4141; font-size: 18px; margin-bottom: 10px; }
+        .auth-input { width: 100%; background: #101014; border: 1px solid #25252b; padding: 12px; border-radius: 12px; color: white; text-align: center; font-size: 18px; outline: none; margin-bottom: 15px; box-sizing: border-box; }
+        .auth-btn { background: #FF4141; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; }
+        .hidden { display: none !important; }
+    </style>
 </head>
 <body>
 
-    <div id="auth_modal" style="display: none;">
-        <div class="auth-card">
-            <h2>ЗАЩИТА ДОСТУПА</h2>
-            <p>Введите ваш личный пароль</p>
-            <input type="password" id="pass_input" class="auth-input" placeholder="••••">
-            <button class="auth-btn" onclick="checkPass()">ПОДТВЕРДИТЬ</button>
-        </div>
-    </div>
+    <div id="auth_modal" class="hidden">
+        <div class="auth-card">
+            <h2>ЗАЩИТА ДОСТУПА</h2>
+            <p>Введите ваш личный пароль</p>
+            <input type="password" id="pass_input" class="auth-input" placeholder="••••">
+            <button class="auth-btn" onclick="checkPass()">ПОДТВЕРДИТЬ</button>
+        </div>
+    </div>
 
-    <div id="main_content">
-        <div class="header">
-            <div class="user-info" style="display:flex; align-items:center;">
-                <div id="user_avatar" class="avatar"></div>
-                <div>
-                    <div class="nickname" id="nick">ЗАГРУЗКА...</div>
-                    <div class="org" id="org_val">SURGUT</div>
-                </div>
-            </div>
-        </div>
+    <div id="main_content">
+        <div class="header">
+            <div class="user-info">
+                <div id="user_avatar" class="avatar"></div>
+                <div>
+                    <div class="nickname" id="nick">ЗАГРУЗКА...</div>
+                    <div class="org" id="org_val">SURGUT</div>
+                </div>
+            </div>
+            <div id="music_toggle">🎵</div>
+        </div>
 
-        <div class="section-title">📊 Успеваемость</div>
-        <div class="card">
-            <div class="row"><div class="label">Баллы:</div><div class="val" id="balls">0</div></div>
-            <div class="row"><div class="label">Выговоры:</div><div class="val" id="vigs">0</div></div>
-            <div class="row"><div class="label">Преды:</div><div class="val" id="preds">0</div></div>
-        </div>
+        <div class="section-title">📊 Успеваемость</div>
+        <div class="grid">
+            <div class="grid-item"><div class="grid-val" id="balls">0</div><div class="grid-label">Баллы</div></div>
+            <div class="grid-item"><div class="grid-val" id="vigs">0</div><div class="grid-label">Выговоры</div></div>
+            <div class="grid-item"><div class="grid-val" id="preds">0</div><div class="grid-label">Пред-ия</div></div>
+            <div class="grid-item"><div class="grid-val" id="usts">0</div><div class="grid-label">Устники</div></div>
+        </div>
 
-        </div>
+        <div class="section-title">📌 Информация</div>
+        <div class="card">
+            <div class="row"><div class="label">Должность:</div><div class="val highlight" id="post">---</div></div>
+            <div class="row"><div class="label">Добавил:</div><div class="val" id="added">---</div></div>
+            <div class="row"><div class="label">Назначен:</div><div class="val" id="date">---</div></div>
+            <div class="row"><div class="label">Дней:</div><div class="val" id="days">0</div></div>
+            <div class="row"><div class="label">Возраст/Пояс:</div><div class="val"><span id="age">--</span> / <span id="tz">--</span></div></div>
+        </div>
 
-    <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
-        const p = new URLSearchParams(window.location.search);
-        
-        // 1. Проверка пароля
-        const correctPass = p.get('pass');
-        const authModal = document.getElementById('auth_modal');
-        
-        if (correctPass && correctPass !== "None" && correctPass !== "null") {
-            authModal.style.display = 'flex';
-        } else {
-            authModal.style.display = 'none';
-        }
+        <div class="section-title">📞 Контакты</div>
+        <div class="card">
+            <div class="row"><div class="label">TG ID:</div><div class="val" id="tg_id">---</div></div>
+            <div class="row"><div class="label">Discord ID:</div><div class="val" id="ds_id">---</div></div>
+            <div class="row"><div class="label">Discord Link:</div><div class="val highlight" id="ds_link">Перейти в Discord</div></div>
+            <div class="row"><div class="label">Почта:</div><div class="val" id="mail">---</div></div>
+            <div class="row"><div class="label">VK:</div><div class="val highlight" id="vk_link">Профиль VK</div></div>
+            <div class="row"><div class="label">Форум:</div><div class="val highlight" id="forum_link">Перейти</div></div>
+        </div>
+    </div>
 
-        function checkPass() {
-            const input = document.getElementById('pass_input').value;
-            if (input === correctPass) {
-                authModal.style.display = 'none';
-                tg.HapticFeedback.notificationOccurred('success');
-            } else {
-                alert("❌ Неверный пароль!");
-                tg.HapticFeedback.notificationOccurred('error');
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        const p = new URLSearchParams(window.location.search);
+
+        // --- ЛОГИКА ПЛЕЕРА ---
+        const musicUrl = p.get('music');
+        let audio = null;
+        let isPlaying = false;
+        const musicBtn = document.getElementById('music_toggle');
+
+        if (musicUrl && musicUrl !== "none") {
+            audio = new Audio(musicUrl);
+            audio.loop = true; // Музыка будет играть по кругу
+
+            // Функция запуска музыки
+            function startMusic() {
+                if (!isPlaying) {
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        musicBtn.innerText = "🔊";
+                    }).catch(e => console.log("Ждем первого клика пользователя..."));
+                }
             }
+
+            // Пытаемся запустить музыку при самом первом клике пользователя по экрану
+            document.addEventListener('click', startMusic, { once: true });
+            document.addEventListener('touchstart', startMusic, { once: true });
+
+            // Ручное управление через кнопку
+            musicBtn.onclick = (e) => {
+                e.stopPropagation(); // Чтобы клик по кнопке не дублировал запуск
+                if (isPlaying) {
+                    audio.pause();
+                    musicBtn.innerText = "🔇";
+                    isPlaying = false;
+                } else {
+                    audio.play();
+                    musicBtn.innerText = "🔊";
+                    isPlaying = true;
+                }
+            };
+        } else {
+            musicBtn.style.display = 'none';
         }
+        // --- ЛОГИКА ЗАЩИТЫ ---
+        const correctPass = p.get('pass');
+        if (correctPass && correctPass !== "None" && correctPass !== "null") {
+            document.getElementById('auth_modal').classList.remove('hidden');
+            document.getElementById('main_content').style.filter = "blur(10px)";
+        }
 
-        // 2. Заполнение данных
-        document.getElementById('nick').innerText = (p.get('nick') || "ГОСТЬ").toUpperCase();
-        document.getElementById('org_val').innerText = p.get('org') || "ORGANIZATION";
-        document.getElementById('balls').innerText = p.get('balls') || "0";
-        document.getElementById('vigs').innerText = p.get('vigs') || "0";
-        document.getElementById('preds').innerText = p.get('preds') || "0";
+        function checkPass() {
+            const input = document.getElementById('pass_input').value;
+            if (input === correctPass) {
+                document.getElementById('auth_modal').classList.add('hidden');
+                document.getElementById('main_content').style.filter = "none";
+                tg.HapticFeedback.notificationOccurred('success');
+            } else {
+                alert("❌ Неверный пароль!");
+                document.getElementById('pass_input').value = "";
+                tg.HapticFeedback.notificationOccurred('error');
+            }
+        }
 
-        tg.ready();
-    </script>
+        // --- ЗАПОЛНЕНИЕ ДАННЫХ ---
+        function go(url) { if (url && url !== "#") tg.openLink(url); }
+
+        document.getElementById('nick').innerText = (p.get('nick') || "---").toUpperCase();
+        document.getElementById('post').innerText = p.get('post') || "---";
+        document.getElementById('added').innerText = p.get('added') || "---";
+        document.getElementById('date').innerText = p.get('date') || "---";
+        document.getElementById('days').innerText = p.get('days') || "0";
+        document.getElementById('age').innerText = p.get('age') || "--";
+        document.getElementById('tz').innerText = p.get('tz') || "--";
+        document.getElementById('balls').innerText = p.get('balls') || "0";
+        document.getElementById('vigs').innerText = p.get('vigs') || "0";
+        document.getElementById('preds').innerText = p.get('preds') || "0";
+        document.getElementById('usts').innerText = p.get('usts') || "0";
+        document.getElementById('tg_id').innerText = p.get('tid') || "---";
+        document.getElementById('mail').innerText = p.get('mail') || "---";
+        document.getElementById('ds_id').innerText = p.get('ds') || "---";
+
+        if (tg.initDataUnsafe.user?.photo_url) {
+            document.getElementById('user_avatar').style.backgroundImage = `url('${tg.initDataUnsafe.user.photo_url}')`;
+        } else {
+            document.getElementById('user_avatar').innerText = (p.get('nick') || "U")[0].toUpperCase();
+        }
+
+        const vkVal = p.get('vk');
+        if (vkVal) {
+            const link = vkVal.includes('http') ? vkVal : `https://vk.com/id${vkVal}`;
+            document.getElementById('vk_link').onclick = () => go(link);
+        }
+
+        const forumVal = p.get('forum');
+        if (forumVal) document.getElementById('forum_link').onclick = () => go(forumVal);
+
+        const dsId = p.get('ds');
+        if (dsId && dsId !== "---") {
+            document.getElementById('ds_link').onclick = () => go(`https://discord.com/users/${dsId}`);
+        }
+
+        tg.ready();
+    </script>
 </body>
 </html>
