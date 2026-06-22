@@ -100,28 +100,46 @@
         const p = new URLSearchParams(window.location.search);
 
         // --- ЛОГИКА ПЛЕЕРА ---
-        const musicUrl = p.get('music');
-        let audio = null;
-        let isPlaying = false;
-        const musicBtn = document.getElementById('music_toggle');
+        const musicUrl = p.get('music');
+        let audio = null;
+        let isPlaying = false;
+        const musicBtn = document.getElementById('music_toggle');
 
-        if (musicUrl && musicUrl !== "none") {
-            audio = new Audio(musicUrl);
-            musicBtn.onclick = () => {
-                if (!isPlaying) {
-                    audio.play();
-                    musicBtn.innerText = "🔊";
-                    isPlaying = true;
-                } else {
-                    audio.pause();
-                    musicBtn.innerText = "🔇";
-                    isPlaying = false;
-                }
-            };
-        } else {
-            musicBtn.style.display = 'none';
-        }
+        if (musicUrl && musicUrl !== "none") {
+            audio = new Audio(musicUrl);
+            audio.loop = true; // Музыка будет играть по кругу
 
+            // Функция запуска музыки
+            function startMusic() {
+                if (!isPlaying) {
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        musicBtn.innerText = "🔊";
+                    }).catch(e => console.log("Ждем первого клика пользователя..."));
+                }
+            }
+
+            // Пытаемся запустить музыку при самом первом клике пользователя по экрану
+            document.addEventListener('click', startMusic, { once: true });
+            document.addEventListener('touchstart', startMusic, { once: true });
+
+            // Ручное управление через кнопку
+            musicBtn.onclick = (e) => {
+                e.stopPropagation(); // Чтобы клик по кнопке не дублировал запуск
+                if (isPlaying) {
+                    audio.pause();
+                    musicBtn.innerText = "🔇";
+                    isPlaying = false;
+                } else {
+                    audio.play();
+                    musicBtn.innerText = "🔊";
+                    isPlaying = true;
+                }
+            };
+        } else {
+            musicBtn.style.display = 'none';
+        }
+      
         // --- ЛОГИКА ЗАЩИТЫ ---
         const correctPass = p.get('pass');
         if (correctPass && correctPass !== "None" && correctPass !== "null") {
