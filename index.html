@@ -107,15 +107,33 @@
 
         if (musicUrl && musicUrl !== "none") {
             audio = new Audio(musicUrl);
-            musicBtn.onclick = () => {
+            audio.loop = true; // Музыка будет играть по кругу
+
+            // Функция запуска музыки
+            function startMusic() {
                 if (!isPlaying) {
-                    audio.play();
-                    musicBtn.innerText = "🔊";
-                    isPlaying = true;
-                } else {
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        musicBtn.innerText = "🔊";
+                    }).catch(e => console.log("Ждем первого клика пользователя..."));
+                }
+            }
+
+            // Пытаемся запустить музыку при самом первом клике пользователя по экрану
+            document.addEventListener('click', startMusic, { once: true });
+            document.addEventListener('touchstart', startMusic, { once: true });
+
+            // Ручное управление через кнопку
+            musicBtn.onclick = (e) => {
+                e.stopPropagation(); // Чтобы клик по кнопке не дублировал запуск
+                if (isPlaying) {
                     audio.pause();
                     musicBtn.innerText = "🔇";
                     isPlaying = false;
+                } else {
+                    audio.play();
+                    musicBtn.innerText = "🔊";
+                    isPlaying = true;
                 }
             };
         } else {
