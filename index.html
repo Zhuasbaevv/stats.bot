@@ -5,7 +5,6 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -55,6 +54,7 @@
             </div>
             <div id="music_toggle">🎵</div>
         </div>
+
         <div class="section-title">📊 Успеваемость</div>
         <div class="grid">
             <div class="grid-item"><div class="grid-val" id="balls">0</div><div class="grid-label">Баллы</div></div>
@@ -62,6 +62,7 @@
             <div class="grid-item"><div class="grid-val" id="preds">0</div><div class="grid-label">Пред-ия</div></div>
             <div class="grid-item"><div class="grid-val" id="usts">0</div><div class="grid-label">Устники</div></div>
         </div>
+
         <div class="section-title">📌 Информация</div>
         <div class="card">
             <div class="row"><div class="label">Должность:</div><div class="val highlight" id="post">---</div></div>
@@ -70,6 +71,7 @@
             <div class="row"><div class="label">Дней:</div><div class="val" id="days">0</div></div>
             <div class="row"><div class="label">Возраст/Пояс:</div><div class="val"><span id="age">--</span> / <span id="tz">--</span></div></div>
         </div>
+
         <div class="section-title">📞 Контакты</div>
         <div class="card">
             <div class="row"><div class="label">TG ID:</div><div class="val" id="tg_id">---</div></div>
@@ -82,20 +84,36 @@
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready(); 
-        tg.expand();
         const p = new URLSearchParams(window.location.search);
+        const tg = window.Telegram.WebApp;
+        tg.ready();
 
-        // 1. Аватар: используем данные из tg.initDataUnsafe
-        const user = tg.initDataUnsafe?.user;
-        if (user && user.photo_url) {
-            document.getElementById('user_avatar').style.backgroundImage = `url('${user.photo_url}')`;
+        // Аватар: если есть фото в параметрах, ставим его, иначе — букву
+        const photoUrl = p.get('photo');
+        const avatarEl = document.getElementById('user_avatar');
+        if (photoUrl && photoUrl !== "none") {
+            avatarEl.style.backgroundImage = `url('${photoUrl}')`;
         } else {
-            document.getElementById('user_avatar').innerText = (p.get('nick') || "U")[0].toUpperCase();
+            avatarEl.innerText = (p.get('nick') || "U")[0].toUpperCase();
         }
 
-        // 2. Логика плеера
+        // Заполнение всех полей как было изначально
+        document.getElementById('nick').innerText = (p.get('nick') || "---").toUpperCase();
+        document.getElementById('post').innerText = p.get('post') || "---";
+        document.getElementById('added').innerText = p.get('added') || "---";
+        document.getElementById('date').innerText = p.get('date') || "---";
+        document.getElementById('days').innerText = p.get('days') || "0";
+        document.getElementById('balls').innerText = p.get('balls') || "0";
+        document.getElementById('vigs').innerText = p.get('vigs') || "0";
+        document.getElementById('preds').innerText = p.get('preds') || "0";
+        document.getElementById('usts').innerText = p.get('usts') || "0";
+        document.getElementById('age').innerText = p.get('age') || "--";
+        document.getElementById('tz').innerText = p.get('tz') || "--";
+        document.getElementById('tg_id').innerText = p.get('tid') || "---";
+        document.getElementById('mail').innerText = p.get('mail') || "---";
+        document.getElementById('ds_id').innerText = p.get('ds') || "---";
+
+        // Логика плеера
         const musicUrl = p.get('music');
         let audio = null;
         let isPlaying = false;
@@ -104,26 +122,9 @@
         if (musicUrl && musicUrl !== "none") {
             audio = new Audio(musicUrl);
             audio.loop = true;
-            function startMusic() {
-                if (!isPlaying) {
-                    audio.play().then(() => { isPlaying = true; musicBtn.innerText = "🔊"; }).catch(()=>{});
-                }
-            }
-            document.addEventListener('click', startMusic, { once: true });
-            musicBtn.onclick = (e) => {
-                e.stopPropagation();
-                if (isPlaying) { audio.pause(); musicBtn.innerText = "🔇"; isPlaying = false; }
-                else { audio.play(); musicBtn.innerText = "🔊"; isPlaying = true; }
-            };
+            document.addEventListener('click', () => { if(!isPlaying) { audio.play(); isPlaying=true; musicBtn.innerText="🔊"; } }, {once: true});
+            musicBtn.onclick = (e) => { e.stopPropagation(); if(isPlaying){ audio.pause(); musicBtn.innerText="🔇"; isPlaying=false; } else { audio.play(); musicBtn.innerText="🔊"; isPlaying=true; } };
         } else { musicBtn.style.display = 'none'; }
-
-        // 3. Данные
-        document.getElementById('nick').innerText = (p.get('nick') || "---").toUpperCase();
-        document.getElementById('post').innerText = p.get('post') || "---";
-        // ... (заполнение остальных полей как было) ...
-        document.getElementById('tg_id').innerText = p.get('tid') || "---";
-        
-        // ... (ссылки как были) ...
     </script>
 </body>
 </html>
